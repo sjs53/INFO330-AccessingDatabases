@@ -20,20 +20,23 @@ for i, arg in enumerate(sys.argv):
     if i == 0:
         continue
 
+    # query to find pokemon name from given index
     #print(str(arg))
     queryval = "SELECT name from pokemon WHERE pokedex_number = " + str(arg)
     pokemon = cursor.execute(queryval)
     pokemon = cursor.fetchone()
     pokemon = str(pokemon)
-    pokemon = pokemon[1:-2]
+    pokemon = pokemon[2:-3]
     #print(pokemon)
 
+    # query to find the first type
     typeval1 = "SELECT type.name FROM type JOIN pokemon_type JOIN pokemon ON pokemon.pokedex_number = pokemon_type.pokemon_id AND pokemon_type.type_id = type.id WHERE pokemon_type.which = 1 AND pokedex_number = " +str(arg)
     type1 = cursor.execute(typeval1)
     type1 = cursor.fetchone()
     type1 = str(type1)
-    type1 = type1[1:-2]
+    type1 = type1[2:-3]
 
+    # query to find the id for the first type to be used in a later query
     typeval1 = "SELECT type.id FROM type JOIN pokemon_type JOIN pokemon ON pokemon.pokedex_number = pokemon_type.pokemon_id AND pokemon_type.type_id = type.id WHERE pokemon_type.which = 1 AND pokedex_number = " + str(arg)
     type1num = cursor.execute(typeval1)
     type1num = cursor.fetchone()
@@ -42,12 +45,14 @@ for i, arg in enumerate(sys.argv):
     #print(type1)
     #print(type1num)
 
+    # query to find the second type
     typeval2 = "SELECT type.name FROM type JOIN pokemon_type JOIN pokemon ON pokemon.pokedex_number = pokemon_type.pokemon_id AND pokemon_type.type_id = type.id WHERE pokemon_type.which = 2 AND pokedex_number = " +str(arg)
     type2 = cursor.execute(typeval2)
     type2 = cursor.fetchone()
     type2 = str(type2)
-    type2 = type2[1:-2]
+    type2 = type2[2:-3]
 
+    # query to find the id for the second type to be used in a later query
     typeval2 = "SELECT type.id FROM type JOIN pokemon_type JOIN pokemon ON pokemon.pokedex_number = pokemon_type.pokemon_id AND pokemon_type.type_id = type.id WHERE pokemon_type.which = 2 AND pokedex_number = " + str(arg)
     type2num = cursor.execute(typeval2)
     type2num = cursor.fetchone()
@@ -56,10 +61,13 @@ for i, arg in enumerate(sys.argv):
     #print(type2)
     #print(type2num)
 
+    # declare lists for strong and weak
     strong = []
     weak = []
+
+    # determines the strengths and weakness by looping over the list of types
     for name in types:
-        #valagainst = "SELECT against.against_" + name + " FROM against JOIN type ON against.type_source_id1 = type.id AND against.type_source_id2 = type.id WHERE against.type_source_id1 = " + type1num + " AND against.type_source_id2 = " + type2num
+
         valagainst = "SELECT against_" + name +" FROM against WHERE type_source_id1 = " + type1num + " AND type_source_id2 = " + type2num
         cursor.execute(valagainst)
         agianst = cursor.fetchone()
@@ -72,7 +80,13 @@ for i, arg in enumerate(sys.argv):
         if agianst < 1.0:
             weak.append(name)
 
-    sentence = pokemon + " (" + type1 + " " + type2 + ") is strong against " + str(strong) + " but is weak against " + str(weak)
+    #builds and prints the final output to console + makes the team list
+    sentence = ""
+    if type2num == '19':
+        sentence = pokemon + " (" + type1 + ") is strong against " + str(strong) + " but is weak against " + str(weak)
+    else:
+        sentence = pokemon + " (" + type1 + " " + type2 + ") is strong against " + str(strong) + " but is weak against " + str(weak)
+
     team.append(sentence)
     print("Analyzing " + str(arg))
     print(sentence)
@@ -83,10 +97,6 @@ for i, arg in enumerate(sys.argv):
     # Remember to look at those "against_NNN" column values; greater than 1
     # means the Pokemon is strong against that type, and less than 1 means
     # the Pokemon is weak against that type
-
-
-
-
 
 
 answer = input("Would you like to save this team? (Y)es or (N)o: ")
