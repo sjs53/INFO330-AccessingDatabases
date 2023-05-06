@@ -91,6 +91,8 @@ for i, arg in enumerate(sys.argv):
     print("Analyzing " + str(arg))
     print(sentence)
 
+
+cursor.close()
     # Analyze the pokemon whose pokedex_number is in "arg"
 
     # You will need to write the SQL, extract the results, and compare
